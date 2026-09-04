@@ -84,6 +84,19 @@ export default function App() {
     setView('report')
   }, [])
 
+  const handleReassess = useCallback(async (id) => {
+    const { reassessReview, getReview } = await import('./hooks/useReviewApi')
+    const result = await reassessReview(id, email)
+    setReviewId(result.review_id)
+    if (result.status === 'complete') {
+      const full = await getReview(result.review_id)
+      setCompletedReview(full)
+      setView('report')
+    } else {
+      setView('analysing')
+    }
+  }, [email])
+
   const handleChangeEmail = useCallback(() => {
     setPendingAction(null)
     setShowEmailGate(true)
@@ -124,7 +137,7 @@ export default function App() {
           {view === 'report' && completedReview && <Report review={completedReview} />}
 
           {view === 'history' && email && (
-            <History email={email} onOpenReview={handleOpenReview} />
+            <History email={email} onOpenReview={handleOpenReview} onReassess={handleReassess} />
           )}
           {view === 'history' && !email && (
             <div className="h-full flex items-center justify-center px-6 text-center">

@@ -23,6 +23,7 @@ from core.database import (
     create_red_team_note,
     create_review,
     create_risk_flag,
+    delete_review,
     fail_review,
     get_claims,
     get_evidence_for_claims,
@@ -61,6 +62,10 @@ class SubmitReviewResponse(BaseModel):
     review_id: str
     status: str
     is_demo: bool
+
+
+class ReassessReviewRequest(BaseModel):
+    email: EmailStr
 
 
 class ReviewSummary(BaseModel):
@@ -130,14 +135,38 @@ def _run_review_pipeline(review_id: str, title: str, document_text: str) -> None
     """Background task: stream the LangGraph pipeline, tracking stage progress, then persist."""
     from pipeline.graph import get_graph
 
+    # ``graph.stream()`` only yields a node's name once that node has *finished* —
+    # so naively setting current_stage to the node that just completed makes the
+    # UI's progress stepper lag one stage behind what's actually running. Instead,
+    # advance current_stage to whatever stage is about to run next, and show the
+    # very first stage as active immediately, before any node has completed.
+    NEXT_STAGE = {
+        "claim_analyst": "evidence_researcher",
+        "evidence_researcher": "cross_checker",
+        "cross_checker": "red_team",  # first of the two parallel branches to display as active
+    }
+    PARALLEL_BRANCH = {"red_team", "publication_risk"}
+
     initial_state = {"review_id": review_id, "title": title, "document_text": document_text, "errors": {}}
     final_state = dict(initial_state)
+    update_review_stage(review_id, "claim_analyst")
+    completed: set[str] = set()
     try:
         graph = get_graph()
         for step in graph.stream(initial_state):
             for node_name, partial in step.items():
                 final_state.update(partial)
-                update_review_stage(review_id, node_name)
+                completed.add(node_name)
+                if node_name in PARALLEL_BRANCH:
+                    if PARALLEL_BRANCH <= completed:
+                        update_review_stage(review_id, "synthesizer")
+                    else:
+                        still_running = (PARALLEL_BRANCH - {node_name}).pop()
+                        update_review_stage(review_id, still_running)
+                else:
+                    next_stage = NEXT_STAGE.get(node_name)
+                    if next_stage:
+                        update_review_stage(review_id, next_stage)
         _persist_pipeline_state(review_id, final_state)
     except Exception as exc:
         logger.exception("Review pipeline failed for review_id=%s", review_id)
@@ -167,6 +196,42 @@ def submit_review(request: SubmitReviewRequest, background_tasks: BackgroundTask
     start_research_progress(review_id, [])
     background_tasks.add_task(_run_review_pipeline, review_id, request.title, request.document_text)
     return SubmitReviewResponse(review_id=review_id, status="running", is_demo=False)
+
+
+@router.post("/{review_id}/reassess", response_model=SubmitReviewResponse)
+def reassess_review(
+    review_id: str, request: ReassessReviewRequest, background_tasks: BackgroundTasks
+) -> SubmitReviewResponse:
+    """Re-run the full pipeline against a previous review's original document, as a new review."""
+    review = get_review(review_id)
+    if review is None:
+        raise HTTPException(status_code=404, detail="Review not found")
+    if review["user_email"] != request.email:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    if review["is_demo"]:
+        new_id = create_review(request.email, review["title"], review["document_text"], is_demo=True)
+        _persist_pipeline_state(new_id, build_demo_state(new_id))
+        return SubmitReviewResponse(review_id=new_id, status="complete", is_demo=True)
+
+    new_id = create_review(request.email, review["title"], review["document_text"], is_demo=False)
+    start_activity(new_id)
+    start_research_progress(new_id, [])
+    background_tasks.add_task(_run_review_pipeline, new_id, review["title"], review["document_text"])
+    return SubmitReviewResponse(review_id=new_id, status="running", is_demo=False)
+
+
+@router.delete("/{review_id}")
+def remove_review(review_id: str, email: EmailStr) -> dict:
+    """Delete a review and all of its associated data. Requires the owner's email."""
+    review = get_review(review_id)
+    if review is None:
+        raise HTTPException(status_code=404, detail="Review not found")
+    if review["user_email"] != email:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    delete_review(review_id)
+    return {"deleted": True}
 
 
 @router.get("/{review_id}/activity")

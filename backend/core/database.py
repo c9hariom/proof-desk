@@ -166,6 +166,20 @@ def list_reviews(user_email: str) -> list[dict]:
     return [dict(row) for row in rows]
 
 
+def delete_review(review_id: str) -> None:
+    """Delete a review and every row that hangs off it (claims, evidence, flags, notes)."""
+    with get_connection() as conn:
+        conn.execute(
+            "DELETE FROM evidence WHERE claim_id IN (SELECT id FROM claims WHERE review_id = ?)",
+            (review_id,),
+        )
+        conn.execute("DELETE FROM claims WHERE review_id = ?", (review_id,))
+        conn.execute("DELETE FROM risk_flags WHERE review_id = ?", (review_id,))
+        conn.execute("DELETE FROM red_team_notes WHERE review_id = ?", (review_id,))
+        conn.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+        conn.commit()
+
+
 # ---------------------------------------------------------------------------
 # Claims
 # ---------------------------------------------------------------------------

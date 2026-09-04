@@ -44,3 +44,21 @@ export async function listReviews(email) {
   const res = await fetch(`${API_URL}/reviews?email=${encodeURIComponent(email)}`)
   return parseJsonOrThrow(res)
 }
+
+/** Delete a review (and all its associated data). Requires the owner's email. */
+export async function deleteReview(reviewId, email) {
+  const res = await fetch(`${API_URL}/reviews/${reviewId}?email=${encodeURIComponent(email)}`, {
+    method: 'DELETE',
+  })
+  return parseJsonOrThrow(res)
+}
+
+/** Re-run the pipeline against a previous review's original document, as a new review. */
+export async function reassessReview(reviewId, email) {
+  const res = await fetch(`${API_URL}/reviews/${reviewId}/reassess`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  return parseJsonOrThrow(res)
+}

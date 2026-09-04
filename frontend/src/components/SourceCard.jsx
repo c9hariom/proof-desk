@@ -1,4 +1,5 @@
 import { TIER_LABELS } from '../constants'
+import { Icon, ICONS } from './icons'
 
 const RELATIONSHIP_LABELS = { supports: 'Supports', contradicts: 'Contradicts', context: 'Context' }
 const RELATIONSHIP_COLORS = {
@@ -15,8 +16,8 @@ const TIER_COLORS = {
 
 export default function SourceCard({ source }) {
   return (
-    <div className="border border-gray-200 rounded-xl p-3 bg-white">
-      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+    <div className="border border-gray-200 rounded-xl p-3.5 bg-white">
+      <div className="flex items-center gap-1.5 mb-2 flex-wrap">
         <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${TIER_COLORS[source.tier] || TIER_COLORS.tier_4_unverified}`}>
           {TIER_LABELS[source.tier] || source.tier}
         </span>
@@ -24,8 +25,8 @@ export default function SourceCard({ source }) {
           {RELATIONSHIP_LABELS[source.relationship] || source.relationship}
         </span>
       </div>
-      <p className="text-sm font-semibold text-[#1a1a1a] leading-snug">{source.title}</p>
-      <p className="text-xs text-gray-500 mt-0.5">
+      <p className="text-[15px] font-semibold text-[#1a1a1a] leading-snug">{source.title}</p>
+      <p className="text-[13px] text-gray-500 mt-1">
         {source.publisher || 'Unknown publisher'}{source.published_at ? ` · ${source.published_at}` : ''}
       </p>
       {source.url && (
@@ -33,9 +34,10 @@ export default function SourceCard({ source }) {
           href={source.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-2 text-xs font-semibold text-[#e3120b] hover:text-[#c41009] underline underline-offset-2"
+          className="inline-flex items-center gap-1 mt-2.5 text-[13px] font-semibold text-gray-500 hover:text-[#e3120b] transition-colors"
         >
           View source
+          <Icon path={ICONS.externalLink} className="w-3 h-3" />
         </a>
       )}
     </div>

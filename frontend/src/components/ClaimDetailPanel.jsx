@@ -17,9 +17,9 @@ export default function ClaimDetailPanel({ claim, onClose }) {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-5">
+    <div className="h-full overflow-y-auto p-6">
       <div className="flex items-start justify-between gap-2 mb-3">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-400">
           {claim.claim_type.replace(/_/g, ' ')}
         </p>
         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xs lg:hidden">
@@ -27,36 +27,36 @@ export default function ClaimDetailPanel({ claim, onClose }) {
         </button>
       </div>
 
-      <p className="text-base font-semibold text-[#1a1a1a] leading-snug mb-4">
+      <p className="text-xl font-bold text-[#1a1a1a] leading-snug mb-5">
         {claim.text}
       </p>
 
       {claim.supports && (
-        <div className="mb-3">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-700 mb-1">What the evidence supports</p>
-          <p className="text-sm text-gray-700 leading-relaxed">{claim.supports}</p>
+        <div className="mb-4">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-emerald-700 mb-1.5">What the evidence supports</p>
+          <p className="text-[15px] text-gray-700 leading-relaxed">{claim.supports}</p>
         </div>
       )}
 
       {claim.does_not_establish && (
-        <div className="mb-3">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-[#e3120b] mb-1">What it does not establish</p>
-          <p className="text-sm text-gray-700 leading-relaxed">{claim.does_not_establish}</p>
+        <div className="mb-4">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#e3120b] mb-1.5">What it does not establish</p>
+          <p className="text-[15px] text-gray-700 leading-relaxed">{claim.does_not_establish}</p>
         </div>
       )}
 
       {claim.editorial_note && (
-        <div className="mb-4 border-l-2 border-gray-200 pl-3">
-          <p className="text-xs italic text-gray-500 leading-relaxed">{claim.editorial_note}</p>
+        <div className="mb-5 bg-gray-50 border-l-2 border-gray-300 rounded-r-lg pl-3.5 pr-3 py-2.5">
+          <p className="text-[14px] italic text-gray-600 leading-relaxed">{claim.editorial_note}</p>
         </div>
       )}
 
-      <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400 mb-2 mt-5">
+      <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-400 mb-2.5 mt-6">
         Sources ({claim.evidence.length})
       </p>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5">
         {claim.evidence.length === 0 && (
-          <p className="text-xs text-gray-400 italic">No candidate sources were found for this claim.</p>
+          <p className="text-sm text-gray-400 italic">No candidate sources were found for this claim.</p>
         )}
         {sortedEvidence.map((source) => (
           <SourceCard key={source.id} source={source} />

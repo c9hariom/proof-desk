@@ -141,6 +141,7 @@ export default function Analysing({ review, error, activity, researchProgress })
   const sources = researchProgress?.sources || []
   const categoryEntries = Object.entries(categories)
   const anyScanning = categoryEntries.some(([, info]) => info.status === 'scanning')
+  const hasResearch = categoryEntries.length > 0
 
   // Sources with a real web link are more useful to a reader — keep them on top,
   // most-recently-found first within each group.
@@ -175,12 +176,12 @@ export default function Analysing({ review, error, activity, researchProgress })
                 )}
                 <div className="flex flex-col items-center text-center px-1">
                   <span
-                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 mb-2 bg-white ${
+                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 mb-2 ${
                       state === 'done'
                         ? 'bg-[#e3120b] border-[#e3120b] text-white'
                         : state === 'active'
-                          ? 'border-[#e3120b] text-[#e3120b]'
-                          : 'border-gray-200 text-gray-300'
+                          ? 'bg-white border-[#e3120b] text-[#e3120b]'
+                          : 'bg-white border-gray-200 text-gray-300'
                     }`}
                     style={state === 'active' ? { animation: 'checklistPulse 1.2s ease-in-out infinite' } : undefined}
                   >
@@ -201,11 +202,15 @@ export default function Analysing({ review, error, activity, researchProgress })
 
         <div className="grid lg:grid-cols-[1fr_280px] gap-5 items-start">
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            {isSearching ? (
+            {hasResearch ? (
               <>
-                <h3 className="text-base font-bold text-[#1a1a1a] mb-1">Searching for evidence…</h3>
+                <h3 className="text-base font-bold text-[#1a1a1a] mb-1">
+                  {isSearching ? 'Searching for evidence…' : 'Evidence gathered'}
+                </h3>
                 <p className="text-xs text-gray-500 mb-4">
-                  Scanning trusted sources and finding relevant information for each claim.
+                  {isSearching
+                    ? 'Scanning trusted sources and finding relevant information for each claim.'
+                    : `These sources are now being used while ${(PIPELINE_STAGES.find((s) => s.key === currentStage)?.label || 'the review continues').toLowerCase()}.`}
                 </p>
 
                 <div className="grid sm:grid-cols-3 gap-2.5 mb-5">
@@ -221,10 +226,14 @@ export default function Analysing({ review, error, activity, researchProgress })
                 </div>
 
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-sm font-bold text-[#1a1a1a]">Live research results</p>
+                  <span className={`w-2 h-2 rounded-full ${isSearching ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-500'}`} />
+                  <p className="text-sm font-bold text-[#1a1a1a]">
+                    {isSearching ? 'Live research results' : 'Sources gathered'}
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mb-3">Sources being scanned and matched to claims in real time.</p>
+                <p className="text-xs text-gray-500 mb-3">
+                  {isSearching ? 'Sources being scanned and matched to claims in real time.' : 'Carried forward from the research stage for reference.'}
+                </p>
 
                 <div className="overflow-x-auto -mx-1">
                   <table className="w-full text-xs px-1">
@@ -245,7 +254,7 @@ export default function Analysing({ review, error, activity, researchProgress })
                       {sortedSources.length === 0 && (
                         <tr>
                           <td colSpan={6} className="py-6 text-center text-gray-400 italic">
-                            Waiting for the first results…
+                            {isSearching ? 'Waiting for the first results…' : 'No candidate sources were found for the prioritised claims.'}
                           </td>
                         </tr>
                       )}
@@ -272,9 +281,6 @@ export default function Analysing({ review, error, activity, researchProgress })
           </div>
 
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <div className="w-full h-20 rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50 flex items-center justify-center mb-4">
-              <Icon path={ICON_PATHS.search} className="w-8 h-8 text-sky-400" />
-            </div>
             <p className="text-sm font-bold text-[#1a1a1a] mb-2">Why multiple sources?</p>
             <ul className="flex flex-col gap-1.5 mb-4">
               {[
