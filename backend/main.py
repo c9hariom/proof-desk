@@ -12,8 +12,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.review import router as review_router
+from api.admin import router as admin_router
 from core.config import settings
-from core.database import init_db
+from core.database import init_db, set_admin
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,6 +30,8 @@ logger = logging.getLogger("proofdesk")
 async def lifespan(app: FastAPI):
     """Initialise the database and log the active configuration on startup."""
     init_db()
+    if settings.admin_email:
+        set_admin(settings.admin_email)
 
     logger.info("━" * 52)
     logger.info("  Proof Desk — starting up")
@@ -36,6 +39,7 @@ async def lifespan(app: FastAPI):
     logger.info("  Model      : %s", settings.openai_model)
     logger.info("  Demo mode  : %s", settings.demo_mode)
     logger.info("  NewsAPI    : %s", "enabled" if settings.newsapi_api_key else "disabled")
+    logger.info("  Admin      : %s", settings.admin_email or "not configured")
     logger.info("━" * 52)
 
     yield
@@ -58,6 +62,7 @@ app.add_middleware(
 )
 
 app.include_router(review_router)
+app.include_router(admin_router)
 
 
 @app.get("/health", tags=["meta"])

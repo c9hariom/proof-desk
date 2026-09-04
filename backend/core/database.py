@@ -99,6 +99,14 @@ def init_db() -> None:
                 FOREIGN KEY (review_id) REFERENCES reviews (id)
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                email        TEXT PRIMARY KEY COLLATE NOCASE,
+                is_admin     INTEGER NOT NULL DEFAULT 0,
+                created_at   TEXT NOT NULL,
+                last_seen_at TEXT NOT NULL
+            )
+        """)
         conn.commit()
 
 
@@ -160,7 +168,7 @@ def list_reviews(user_email: str) -> list[dict]:
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT id, title, status, created_at, is_demo FROM reviews "
-            "WHERE user_email = ? ORDER BY created_at DESC",
+            "WHERE user_email = ? COLLATE NOCASE ORDER BY created_at DESC",
             (user_email,),
         ).fetchall()
     return [dict(row) for row in rows]
@@ -178,6 +186,51 @@ def delete_review(review_id: str) -> None:
         conn.execute("DELETE FROM red_team_notes WHERE review_id = ?", (review_id,))
         conn.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
         conn.commit()
+
+
+# ---------------------------------------------------------------------------
+# Users (lightweight identity + admin flag — no passwords/accounts)
+# ---------------------------------------------------------------------------
+
+
+def upsert_user(email: str) -> dict:
+    """Register a user on first sight, or just refresh ``last_seen_at``. Returns the row."""
+    now = datetime.now(timezone.utc).isoformat()
+    with get_connection() as conn:
+        conn.execute(
+            "INSERT INTO users (email, is_admin, created_at, last_seen_at) VALUES (?, 0, ?, ?) "
+            "ON CONFLICT(email) DO UPDATE SET last_seen_at = excluded.last_seen_at",
+            (email, now, now),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM users WHERE email = ? COLLATE NOCASE", (email,)).fetchone()
+    return dict(row)
+
+
+def set_admin(email: str) -> None:
+    """Seed or promote an email to admin. Used to apply ``ADMIN_EMAIL`` on startup."""
+    now = datetime.now(timezone.utc).isoformat()
+    with get_connection() as conn:
+        conn.execute(
+            "INSERT INTO users (email, is_admin, created_at, last_seen_at) VALUES (?, 1, ?, ?) "
+            "ON CONFLICT(email) DO UPDATE SET is_admin = 1",
+            (email, now, now),
+        )
+        conn.commit()
+
+
+def is_admin_email(email: str) -> bool:
+    """Return True if ``email`` is flagged as admin in the users table."""
+    with get_connection() as conn:
+        row = conn.execute("SELECT is_admin FROM users WHERE email = ? COLLATE NOCASE", (email,)).fetchone()
+    return bool(row and row["is_admin"])
+
+
+def list_users() -> list[dict]:
+    """Return every known user, oldest first."""
+    with get_connection() as conn:
+        rows = conn.execute("SELECT * FROM users ORDER BY created_at ASC").fetchall()
+    return [dict(row) for row in rows]
 
 
 # ---------------------------------------------------------------------------

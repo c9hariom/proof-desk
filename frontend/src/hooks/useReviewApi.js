@@ -62,3 +62,19 @@ export async function reassessReview(reviewId, email) {
   })
   return parseJsonOrThrow(res)
 }
+
+/** Register/refresh a user by email. Returns { email, is_admin }. */
+export async function identifyUser(email) {
+  const res = await fetch(`${API_URL}/identify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  return parseJsonOrThrow(res)
+}
+
+/** Admin-only: list every known user and the reviews they've run. */
+export async function getAdminUsers(email) {
+  const res = await fetch(`${API_URL}/admin/users?email=${encodeURIComponent(email)}`)
+  return parseJsonOrThrow(res)
+}

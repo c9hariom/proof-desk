@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import './App.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -7,14 +7,16 @@ import Home from './components/Home'
 import Analysing from './components/Analysing'
 import Report from './components/Report'
 import History from './components/History'
+import Admin from './components/Admin'
 import EmailGateModal from './components/EmailGateModal'
-import { submitReview } from './hooks/useReviewApi'
+import { identifyUser, submitReview } from './hooks/useReviewApi'
 import { usePollReview } from './hooks/usePollReview'
 import { EMAIL_STORAGE_KEY } from './constants'
 
 export default function App() {
   const [view, setView] = useState('landing')
   const [email, setEmail] = useState(() => localStorage.getItem(EMAIL_STORAGE_KEY) || '')
+  const [isAdmin, setIsAdmin] = useState(false)
   const [pendingAction, setPendingAction] = useState(null) // { title, documentText } | { useDemo: true } | null
   const [showEmailGate, setShowEmailGate] = useState(false)
 
@@ -24,6 +26,19 @@ export default function App() {
   const [completedReview, setCompletedReview] = useState(null)
 
   const { review: polledReview, error: pollError, activity, researchProgress } = usePollReview(view === 'analysing' ? reviewId : null)
+
+  // Register/refresh the user and pick up their admin flag whenever the email changes.
+  useEffect(() => {
+    if (!email) {
+      setIsAdmin(false)
+      return
+    }
+    let cancelled = false
+    identifyUser(email)
+      .then((data) => { if (!cancelled) setIsAdmin(!!data.is_admin) })
+      .catch(() => { if (!cancelled) setIsAdmin(false) })
+    return () => { cancelled = true }
+  }, [email])
 
   // Once polling reports completion, move to the report view.
   if (view === 'analysing' && polledReview?.status === 'complete' && completedReview?.id !== polledReview.id) {
@@ -110,6 +125,7 @@ export default function App() {
           onNavigate={(v) => setView(v)}
           email={email}
           onChangeEmail={handleChangeEmail}
+          isAdmin={isAdmin}
         />
 
         <div style={{ flex: 1, overflow: 'hidden' }}>
@@ -152,6 +168,8 @@ export default function App() {
               </div>
             </div>
           )}
+
+          {view === 'admin' && isAdmin && <Admin email={email} />}
         </div>
 
         <Footer email={email} />

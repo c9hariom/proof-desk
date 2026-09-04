@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # Comma-separated list of allowed frontend origins.
     cors_origins: str = "http://localhost:5173"
 
+    # Email that gets flagged as admin (seeded into the users table on startup).
+    admin_email: str = ""
+
     @model_validator(mode="after")
     def _resolve_demo_mode(self) -> "Settings":
         """Force demo mode on whenever no OpenAI key is configured."""

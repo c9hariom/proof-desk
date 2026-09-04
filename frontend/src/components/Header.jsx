@@ -1,4 +1,4 @@
-export default function Header({ view, onNavigate, email, onChangeEmail }) {
+export default function Header({ view, onNavigate, email, onChangeEmail, isAdmin }) {
   return (
     <header className="relative flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-[#e3120b] flex-shrink-0">
       <div className="flex items-center gap-3">
@@ -42,6 +42,16 @@ export default function Header({ view, onNavigate, email, onChangeEmail }) {
         >
           History
         </button>
+        {isAdmin && (
+          <button
+            onClick={() => onNavigate('admin')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              view === 'admin' ? 'bg-white text-[#e3120b]' : 'text-white/70 hover:text-white'
+            }`}
+          >
+            Admin
+          </button>
+        )}
       </nav>
     </header>
   )
