@@ -14,6 +14,7 @@ const POLL_INTERVAL_MS = 1200
 export function usePollReview(reviewId) {
   const [review, setReview] = useState(null)
   const [activity, setActivity] = useState([])
+  const [researchProgress, setResearchProgress] = useState({ categories: {}, sources: [] })
   const [error, setError] = useState(null)
   const timerRef = useRef(null)
 
@@ -33,12 +34,24 @@ export function usePollReview(reviewId) {
       }
     }
 
+    const pollResearchProgress = async () => {
+      try {
+        const res = await fetch(`${API_URL}/reviews/${reviewId}/research-progress`)
+        if (res.ok && !cancelled) {
+          const data = await res.json()
+          setResearchProgress({ categories: data.categories || {}, sources: data.sources || [] })
+        }
+      } catch {
+        // best-effort — live research feed is a transparency nicety, not critical path
+      }
+    }
+
     const poll = async () => {
       try {
         const data = await getReview(reviewId)
         if (cancelled) return
         setReview(data)
-        await pollActivity()
+        await Promise.all([pollActivity(), pollResearchProgress()])
         if (!cancelled && data.status === 'running') {
           timerRef.current = setTimeout(poll, POLL_INTERVAL_MS)
         }
@@ -55,6 +68,6 @@ export function usePollReview(reviewId) {
     }
   }, [reviewId])
 
-  return { review, error, activity }
+  return { review, error, activity, researchProgress }
 }
 

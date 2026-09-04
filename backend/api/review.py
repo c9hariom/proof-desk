@@ -15,6 +15,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 from core.config import settings
 from core.activity_log import get as get_activity, start as start_activity
+from core.research_progress import get as get_research_progress, start as start_research_progress
 from core.database import (
     complete_review,
     create_claim,
@@ -163,6 +164,7 @@ def submit_review(request: SubmitReviewRequest, background_tasks: BackgroundTask
 
     review_id = create_review(request.email, request.title, request.document_text, is_demo=False)
     start_activity(review_id)
+    start_research_progress(review_id, [])
     background_tasks.add_task(_run_review_pipeline, review_id, request.title, request.document_text)
     return SubmitReviewResponse(review_id=review_id, status="running", is_demo=False)
 
@@ -171,6 +173,12 @@ def submit_review(request: SubmitReviewRequest, background_tasks: BackgroundTask
 def get_review_activity(review_id: str) -> dict:
     """Return the live 'what is it looking at' console lines for a running review."""
     return {"lines": get_activity(review_id)}
+
+
+@router.get("/{review_id}/research-progress")
+def get_review_research_progress(review_id: str) -> dict:
+    """Return live per-category scan status and the rolling feed of found sources."""
+    return get_research_progress(review_id)
 
 
 @router.get("/{review_id}")

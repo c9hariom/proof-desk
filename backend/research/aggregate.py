@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 from core.activity_log import log as log_activity
 from core.config import settings
+from core import research_progress
 from research import duckduckgo, gdelt, news_rss, newsapi, wikipedia
 from research.source_classifier import classify_domain
 
@@ -29,6 +30,9 @@ _SOURCES = [
     (newsapi.search, "NewsAPI", "news"),
     (gdelt.search, "GDELT news archive", "news"),
 ]
+
+# Category labels shown live on the Analysing screen, in display order.
+CATEGORY_LABELS = [label for _fn, label, _source_type in _SOURCES]
 
 
 def _domain(url: str | None) -> str:
@@ -50,12 +54,28 @@ def _run_source(review_id: str, fn, label: str, claim_text: str, short_claim: st
         return []  # skip silently — no key configured, nothing to log
 
     log_activity(review_id, f"Searching {label} for: \u201c{short_claim}\u201d")
+    research_progress.mark_scanning(review_id, label)
     try:
         results = fn(claim_text)
     except Exception:
         logger.warning("%s search raised for claim: %s", label, claim_text, exc_info=True)
         results = []
     log_activity(review_id, f"{label} returned {len(results)} result(s) for: \u201c{short_claim}\u201d")
+    research_progress.mark_done(review_id, label, len(results))
+
+    for item in results:
+        domain = _domain(item.get("url"))
+        research_progress.add_source(review_id, {
+            "title": item.get("title", "Untitled source"),
+            "url": item.get("url"),
+            "publisher": item.get("publisher") or domain,
+            "published_at": item.get("published_at"),
+            "snippet": item.get("snippet") or item.get("body"),
+            "tier": classify_domain(item.get("url"), item.get("publisher")),
+            "category": label,
+            "claim": short_claim,
+        })
+
     return results
 
 

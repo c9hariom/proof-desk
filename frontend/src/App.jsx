@@ -23,7 +23,7 @@ export default function App() {
   const [submitError, setSubmitError] = useState(null)
   const [completedReview, setCompletedReview] = useState(null)
 
-  const { review: polledReview, error: pollError, activity } = usePollReview(view === 'analysing' ? reviewId : null)
+  const { review: polledReview, error: pollError, activity, researchProgress } = usePollReview(view === 'analysing' ? reviewId : null)
 
   // Once polling reports completion, move to the report view.
   if (view === 'analysing' && polledReview?.status === 'complete' && completedReview?.id !== polledReview.id) {
@@ -117,7 +117,9 @@ export default function App() {
             />
           )}
 
-          {view === 'analysing' && <Analysing review={polledReview} error={pollError} activity={activity} />}
+          {view === 'analysing' && (
+            <Analysing review={polledReview} error={pollError} activity={activity} researchProgress={researchProgress} />
+          )}
 
           {view === 'report' && completedReview && <Report review={completedReview} />}
 

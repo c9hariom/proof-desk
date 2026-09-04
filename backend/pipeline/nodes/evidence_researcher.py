@@ -10,8 +10,9 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 from core.activity_log import log as log_activity
+from core import research_progress
 from pipeline.state import PipelineState
-from research.aggregate import gather_candidates
+from research.aggregate import CATEGORY_LABELS, gather_candidates
 
 logger = logging.getLogger("proofdesk.pipeline.evidence_researcher")
 
@@ -22,6 +23,8 @@ def run(state: PipelineState) -> dict:
     claims = state.get("claims", [])
     claims_evidence: list[list[dict]] = [[] for _ in claims]
     priority_indices = [i for i, c in enumerate(claims) if c.get("research_priority")]
+
+    research_progress.start(review_id, CATEGORY_LABELS)
 
     if not priority_indices:
         log_activity(review_id, "No high-priority claims to research.")

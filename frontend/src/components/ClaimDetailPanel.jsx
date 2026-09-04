@@ -1,6 +1,13 @@
+import { useMemo } from 'react'
 import SourceCard from './SourceCard'
 
 export default function ClaimDetailPanel({ claim, onClose }) {
+  const sortedEvidence = useMemo(() => {
+    if (!claim) return []
+    // Sources with a real web link are more useful to a reader — surface them first.
+    return [...claim.evidence].sort((a, b) => (b.url ? 1 : 0) - (a.url ? 1 : 0))
+  }, [claim])
+
   if (!claim) {
     return (
       <div className="h-full flex items-center justify-center text-sm text-gray-400 italic px-6 text-center">
@@ -51,7 +58,7 @@ export default function ClaimDetailPanel({ claim, onClose }) {
         {claim.evidence.length === 0 && (
           <p className="text-xs text-gray-400 italic">No candidate sources were found for this claim.</p>
         )}
-        {claim.evidence.map((source) => (
+        {sortedEvidence.map((source) => (
           <SourceCard key={source.id} source={source} />
         ))}
       </div>
