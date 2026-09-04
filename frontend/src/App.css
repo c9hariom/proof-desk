@@ -1,0 +1,49 @@
+/* App-level styles: editorial theme inspired by Economist-like layout */
+
+:root {
+	--bg-paper: #f6f4f2;
+	--bg-main: #f0efed;
+	--text-primary: #0f0f0f;
+	--muted: #6b6b6b;
+	--accent: #e3120b; /* restrained red accent */
+	--card-shadow: 0 8px 48px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07);
+	--radius: 18px;
+}
+
+html, body, #root {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--bg-main);
+	color: var(--text-primary);
+	font-family: 'Georgia', 'Times New Roman', serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.editorial-frame {
+	width: 100%;
+	max-width: 1400px;
+	height: calc(100vh - 40px);
+	border-radius: var(--radius);
+	background: var(--bg-paper);
+	box-shadow: var(--card-shadow);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.muted { color: var(--muted); }
+.accent { color: var(--accent); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }

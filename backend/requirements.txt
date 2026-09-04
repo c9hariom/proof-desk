@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+openai
+langgraph
+pydantic
+pydantic-settings
+python-dotenv
+ddgs
+feedparser
+httpx
+email-validator
