@@ -21,7 +21,6 @@ export default function Home({ onStartReview, onTryExample, submitting, submitEr
         </p>
         <h1
           className="text-3xl font-bold text-[#1a1a1a] text-center mb-3 leading-tight"
-          style={{ fontFamily: 'Georgia, serif' }}
         >
           Know what you're actually claiming.
         </h1>

@@ -27,7 +27,7 @@ export default function ClaimDetailPanel({ claim, onClose }) {
         </button>
       </div>
 
-      <p className="text-base font-semibold text-[#1a1a1a] leading-snug mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+      <p className="text-base font-semibold text-[#1a1a1a] leading-snug mb-4">
         {claim.text}
       </p>
 

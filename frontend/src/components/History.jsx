@@ -26,7 +26,7 @@ export default function History({ email, onOpenReview }) {
     <div className="h-full overflow-y-auto px-6 py-8">
       <div className="max-w-3xl mx-auto">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[#e3120b] mb-1">History</p>
-        <h1 className="text-2xl font-bold text-[#1a1a1a] mb-1" style={{ fontFamily: 'Georgia, serif' }}>
+        <h1 className="text-2xl font-bold text-[#1a1a1a] mb-1">
           Your reviews
         </h1>
         <p className="text-sm text-gray-400 mb-6">Showing reviews for {email}</p>

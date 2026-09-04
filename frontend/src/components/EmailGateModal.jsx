@@ -30,7 +30,7 @@ export default function EmailGateModal({ onSubmit, onCancel }) {
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[#e3120b] mb-2">
           Before you start
         </p>
-        <h2 className="text-xl font-bold text-[#1a1a1a] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
+        <h2 className="text-xl font-bold text-[#1a1a1a] mb-2">
           What's your email?
         </h2>
         <p className="text-sm text-gray-500 mb-4 leading-relaxed">

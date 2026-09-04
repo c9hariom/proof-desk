@@ -55,28 +55,28 @@ export default function Landing({ onStartReview, onTryExample, onViewHistory }) 
           </div>
         </div>
 
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-[#e3120b] mb-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#e3120b] mb-4">
           Evidence, reasoning &amp; publication-risk review
         </p>
-        <h1 className="text-4xl font-bold text-[#1a1a1a] mb-4 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
-          Before you publish, know what you're actually claiming.
+        <h1 className="text-5xl font-bold text-[#1a1a1a] mb-5 leading-[1.15] tracking-tight">
+          Before you publish, know what you're <span className="text-[#e3120b]">actually</span> claiming.
         </h1>
-        <p className="text-base text-gray-500 max-w-xl mx-auto mb-8 leading-relaxed">
+        <p className="text-lg text-gray-500 max-w-xl mx-auto mb-10 leading-[1.7]">
           Proof Desk traces every important claim to its evidence, challenges the reasoning behind it,
           checks freshness, and surfaces passages that may deserve human — or legal — review.
         </p>
 
-        <div className="flex items-center justify-center gap-3 mb-4">
+        <div className="flex items-center justify-center gap-3 mb-5">
           <button
             onClick={onStartReview}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#e3120b] text-white text-sm font-semibold px-6 py-3 hover:bg-[#c41009] transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#e3120b] text-white text-[15px] font-semibold px-7 py-3.5 hover:bg-[#c41009] transition-colors"
           >
             New review
             <Icon path={ICON_PATHS.arrow} className="w-4 h-4" />
           </button>
           <button
             onClick={onTryExample}
-            className="rounded-xl border border-gray-300 text-[#1a1a1a] text-sm font-semibold px-6 py-3 hover:border-[#e3120b]/50 hover:text-[#e3120b] transition-colors"
+            className="rounded-xl border border-gray-300 text-[#1a1a1a] text-[15px] font-semibold px-7 py-3.5 hover:border-[#e3120b]/50 hover:text-[#e3120b] transition-colors"
           >
             Try an example
           </button>
@@ -86,26 +86,26 @@ export default function Landing({ onStartReview, onTryExample, onViewHistory }) 
         </button>
       </div>
 
-      <div className="w-full max-w-4xl mt-14">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">How it works</span>
-          <div className="flex-1 h-px bg-gray-200" />
+      <div className="w-full max-w-4xl mt-16">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="flex-1 h-px bg-gray-300" />
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em]">How it works</span>
+          <div className="flex-1 h-px bg-gray-300" />
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {STEPS.map((step) => (
             <div key={step.n} className="text-left p-4 bg-white border border-gray-200 rounded-2xl animate-pop-in">
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center justify-between gap-2 mb-2.5">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="w-6 h-6 rounded-full bg-[#e3120b] text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">
                     {step.n}
                   </span>
-                  <span className="text-sm font-semibold text-[#1a1a1a] truncate">{step.title}</span>
+                  <span className="text-lg font-bold text-[#1a1a1a] truncate">{step.title}</span>
                 </div>
                 <Icon path={ICON_PATHS[step.icon]} className="w-4 h-4 text-[#e3120b] flex-shrink-0" />
               </div>
-              <p className="text-xs text-gray-500 leading-relaxed">{step.text}</p>
+              <p className="text-[16px] font-normal text-gray-500 leading-relaxed">{step.text}</p>
             </div>
           ))}
         </div>

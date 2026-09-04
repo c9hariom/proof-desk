@@ -157,7 +157,7 @@ export default function Analysing({ review, error, activity, researchProgress })
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[#e3120b] mb-2 text-center">
           Analysing document
         </p>
-        <h2 className="text-2xl font-bold text-[#1a1a1a] mb-2 text-center" style={{ fontFamily: 'Georgia, serif' }}>
+        <h2 className="text-2xl font-bold text-[#1a1a1a] mb-2 text-center">
           Tracing every claim to its evidence…
         </h2>
         <p className="text-sm text-gray-500 text-center max-w-xl mx-auto mb-8 leading-relaxed">

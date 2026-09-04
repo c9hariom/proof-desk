@@ -19,7 +19,7 @@ export default function PublicationRiskSection({ flags }) {
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[#e3120b] mb-1">
           Legal &amp; publication risk
         </p>
-        <h3 className="text-lg font-bold text-[#1a1a1a] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
+        <h3 className="text-lg font-bold text-[#1a1a1a] mb-2">
           What could go wrong before this is published?
         </h3>
         <div className="flex items-center gap-4">
